@@ -66,78 +66,6 @@ def download_weights(
         convert_to_fast_tokenizer(model_name, revision)
 
 
-def convert_to_safetensors(
-    model_name: str,
-    revision: Optional[str] = None,
-):
-    from tgis_utils import hub
-
-    # Get local pytorch file paths
-    model_path = hub.get_model_path(model_name, revision)
-    local_pt_files = hub.local_weight_files(model_path, ".bin")
-    local_pt_index_files = hub.local_index_files(model_path, ".bin")
-    if len(local_pt_index_files) > 1:
-        print(
-            f"Found more than one .bin.index.json file: {local_pt_index_files}"
-        )
-        return
-    if not local_pt_files:
-        print("No pytorch .bin files found to convert")
-        return
-
-    local_pt_files = [Path(f) for f in local_pt_files]
-    local_pt_index_file = local_pt_index_files[
-        0] if local_pt_index_files else None
-
-    # Safetensors final filenames
-    local_st_files = [
-        p.parent / f"{p.stem.removeprefix('pytorch_')}.safetensors"
-        for p in local_pt_files
-    ]
-
-    if any(os.path.exists(p) for p in local_st_files):
-        print("Existing .safetensors weights found, \
-                remove them first to reconvert")
-        return
-
-    try:
-        import transformers
-
-        config = transformers.AutoConfig.from_pretrained(
-            model_name,
-            revision=revision,
-        )
-        architecture = config.architectures[0]
-
-        class_ = getattr(transformers, architecture)
-
-        # Name for this variable depends on transformers version
-        discard_names = getattr(class_, "_tied_weights_keys", [])
-        discard_names.extend(
-            getattr(class_, "_keys_to_ignore_on_load_missing", []))
-
-    except Exception:
-        discard_names = []
-
-    if local_pt_index_file:
-        local_pt_index_file = Path(local_pt_index_file)
-        st_prefix = local_pt_index_file.stem.removeprefix(
-            "pytorch_").removesuffix(".bin.index")
-        local_st_index_file = (local_pt_index_file.parent /
-                               f"{st_prefix}.safetensors.index.json")
-
-        if os.path.exists(local_st_index_file):
-            print("Existing .safetensors.index.json file found, \
-                    remove it first to reconvert")
-            return
-
-        hub.convert_index_file(local_pt_index_file, local_st_index_file,
-                               local_pt_files, local_st_files)
-
-    # Convert pytorch weights to safetensors
-    hub.convert_files(local_pt_files, local_st_files, discard_names)
-
-
 def convert_to_fast_tokenizer(
     model_name: str,
     revision: Optional[str] = None,
@@ -167,7 +95,7 @@ def convert_to_fast_tokenizer(
 
     print(f"Saved tokenizer to {output_path}")
 
-def main():
+def cli() -> None:
     parser = FlexibleArgumentParser(description="vLLM CLI")
     subparsers = parser.add_subparsers(required=True)
 
@@ -211,4 +139,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    cli()
