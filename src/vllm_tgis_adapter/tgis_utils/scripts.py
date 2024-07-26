@@ -1,27 +1,30 @@
 # The CLI entrypoint to vLLM.
 import argparse
 import os
-import signal
-import sys
-from pathlib import Path
 from typing import Optional
 
 from vllm.model_executor.model_loader.weight_utils import convert_bin_to_safetensor_file
 from vllm.scripts import registrer_signal_handlers
 from vllm.utils import FlexibleArgumentParser
+
 from vllm_tgis_adapter.tgis_utils import hub
+
 
 def tgis_cli(args: argparse.Namespace) -> None:
     registrer_signal_handlers()
 
     if args.command == "download-weights":
-        download_weights(args.model_name, args.revision, args.token,
-                         args.extension, args.auto_convert)
+        download_weights(
+            args.model_name,
+            args.revision,
+            args.token,
+            args.extension,
+            args.auto_convert,
+        )
     elif args.command == "convert-to-safetensors":
         convert_bin_to_safetensor_file(args.model_name, args.revision)
     elif args.command == "convert-to-fast-tokenizer":
-        convert_to_fast_tokenizer(args.model_name, args.revision,
-                                  args.output_path)
+        convert_to_fast_tokenizer(args.model_name, args.revision, args.output_path)
 
 
 def download_weights(
@@ -31,7 +34,6 @@ def download_weights(
     extension: str = ".safetensors",
     auto_convert: bool = True,
 ) -> None:
-
     print(extension)
     meta_exts = [".json", ".py", ".model", ".md"]
 
@@ -40,28 +42,33 @@ def download_weights(
     if len(extensions) == 1 and extensions[0] not in meta_exts:
         extensions.extend(meta_exts)
 
-    files = hub.download_weights(model_name,
-                                 extensions,
-                                 revision=revision,
-                                 auth_token=token)
+    files = hub.download_weights(
+        model_name, extensions, revision=revision, auth_token=token
+    )
 
     if auto_convert and ".safetensors" in extensions:
-        if not hub.local_weight_files(hub.get_model_path(model_name, revision),
-                                      ".safetensors"):
+        if not hub.local_weight_files(
+            hub.get_model_path(model_name, revision), ".safetensors"
+        ):
             if ".bin" not in extensions:
-                print(".safetensors weights not found, \
-                    downloading pytorch weights to convert...")
-                hub.download_weights(model_name,
-                                     ".bin",
-                                     revision=revision,
-                                     auth_token=token)
+                print(
+                    ".safetensors weights not found, \
+                    downloading pytorch weights to convert..."
+                )
+                hub.download_weights(
+                    model_name, ".bin", revision=revision, auth_token=token
+                )
 
-            print(".safetensors weights not found, \
-                    converting from pytorch weights...")
+            print(
+                ".safetensors weights not found, \
+                    converting from pytorch weights..."
+            )
             convert_bin_to_safetensor_file(model_name, revision)
         elif not any(f.endswith(".safetensors") for f in files):
-            print(".safetensors weights not found on hub, \
-                    but were found locally. Remove them first to re-convert")
+            print(
+                ".safetensors weights not found on hub, \
+                    but were found locally. Remove them first to re-convert"
+            )
     if auto_convert:
         convert_to_fast_tokenizer(model_name, revision)
 
@@ -71,7 +78,6 @@ def convert_to_fast_tokenizer(
     revision: Optional[str] = None,
     output_path: Optional[str] = None,
 ):
-
     # Check for existing "tokenizer.json"
     model_path = hub.get_model_path(model_name, revision)
 
@@ -88,11 +94,13 @@ def convert_to_fast_tokenizer(
 
     import transformers
 
-    tokenizer = transformers.AutoTokenizer.from_pretrained(model_name,
-                                                           revision=revision)
+    tokenizer = transformers.AutoTokenizer.from_pretrained(
+        model_name, revision=revision
+    )
     tokenizer.save_pretrained(output_path)
 
     print(f"Saved tokenizer to {output_path}")
+
 
 def cli():
     parser = FlexibleArgumentParser(description="vLLM CLI")
@@ -101,33 +109,39 @@ def cli():
     download_weights_parser = subparsers.add_parser(
         "download-weights",
         help=("Download the weights of a given model"),
-        usage="vllm download-weights <model_name> [options]")
+        usage="vllm download-weights <model_name> [options]",
+    )
     download_weights_parser.add_argument("model_name")
     download_weights_parser.add_argument("--revision")
     download_weights_parser.add_argument("--token")
     download_weights_parser.add_argument("--extension", default=".safetensors")
     download_weights_parser.add_argument("--auto_convert", default=True)
-    download_weights_parser.set_defaults(dispatch_function=tgis_cli,
-                                         command="download-weights")
+    download_weights_parser.set_defaults(
+        dispatch_function=tgis_cli, command="download-weights"
+    )
 
     convert_to_safetensors_parser = subparsers.add_parser(
         "convert-to-safetensors",
         help=("Convert model weights to safetensors"),
-        usage="vllm convert-to-safetensors <model_name> [options]")
+        usage="vllm convert-to-safetensors <model_name> [options]",
+    )
     convert_to_safetensors_parser.add_argument("model_name")
     convert_to_safetensors_parser.add_argument("--revision")
     convert_to_safetensors_parser.set_defaults(
-        dispatch_function=tgis_cli, command="convert-to-safetensors")
+        dispatch_function=tgis_cli, command="convert-to-safetensors"
+    )
 
     convert_to_fast_tokenizer_parser = subparsers.add_parser(
         "convert-to-fast-tokenizer",
         help=("Convert to fast tokenizer"),
-        usage="vllm convert-to-fast-tokenizer <model_name> [options]")
+        usage="vllm convert-to-fast-tokenizer <model_name> [options]",
+    )
     convert_to_fast_tokenizer_parser.add_argument("model_name")
     convert_to_fast_tokenizer_parser.add_argument("--revision")
     convert_to_fast_tokenizer_parser.add_argument("--output_path")
     convert_to_fast_tokenizer_parser.set_defaults(
-        dispatch_function=tgis_cli, command="convert-to-fast-tokenizer")
+        dispatch_function=tgis_cli, command="convert-to-fast-tokenizer"
+    )
 
     args = parser.parse_args()
     # One of the sub commands should be executed.

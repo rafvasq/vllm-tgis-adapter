@@ -13,27 +13,31 @@ from typing import Dict, List, Optional
 import torch
 from huggingface_hub import HfApi, hf_hub_download, try_to_load_from_cache
 from huggingface_hub.utils import LocalEntryNotFoundError
-from safetensors.torch import (_find_shared_tensors, _is_complete, load_file,
-                               save_file)
+from safetensors.torch import _find_shared_tensors, _is_complete, load_file, save_file
 from tqdm import tqdm
 
 TRUST_REMOTE_CODE = os.getenv("TRUST_REMOTE_CODE") == "true"
 logger = logging.getLogger(__name__)
 
 
-def weight_hub_files(model_name,
-                     extension=".safetensors",
-                     revision=None,
-                     auth_token=None):
+def weight_hub_files(
+    model_name, extension=".safetensors", revision=None, auth_token=None
+):
     """Get the safetensors filenames on the hub"""
     exts = [extension] if isinstance(extension, str) else extension
     api = HfApi()
     info = api.model_info(model_name, revision=revision, token=auth_token)
     filenames = [
-        s.rfilename for s in info.siblings if any(
-            s.rfilename.endswith(ext) and len(s.rfilename.split("/")) == 1
-            and "arguments" not in s.rfilename and "args" not in s.rfilename
-            and "training" not in s.rfilename for ext in exts)
+        s.rfilename
+        for s in info.siblings
+        if any(
+            s.rfilename.endswith(ext)
+            and len(s.rfilename.split("/")) == 1
+            and "arguments" not in s.rfilename
+            and "args" not in s.rfilename
+            and "training" not in s.rfilename
+            for ext in exts
+        )
     ]
     return filenames
 
@@ -43,29 +47,28 @@ def weight_files(model_name, extension=".safetensors", revision=None):
     filenames = weight_hub_files(model_name, extension)
     files = []
     for filename in filenames:
-        cache_file = try_to_load_from_cache(model_name,
-                                            filename=filename,
-                                            revision=revision)
+        cache_file = try_to_load_from_cache(
+            model_name, filename=filename, revision=revision
+        )
         if cache_file is None:
             raise LocalEntryNotFoundError(
                 f"File {filename} of model {model_name} not found in "
                 f"{os.getenv('HUGGINGFACE_HUB_CACHE', 'the local cache')}. "
                 f"Please run `vllm \
-                    download-weights {model_name}` first.")
+                    download-weights {model_name}` first."
+            )
         files.append(cache_file)
 
     return files
 
 
-def download_weights(model_name,
-                     extension=".safetensors",
-                     revision=None,
-                     auth_token=None):
+def download_weights(
+    model_name, extension=".safetensors", revision=None, auth_token=None
+):
     """Download the safetensors files from the hub"""
-    filenames = weight_hub_files(model_name,
-                                 extension,
-                                 revision=revision,
-                                 auth_token=auth_token)
+    filenames = weight_hub_files(
+        model_name, extension, revision=revision, auth_token=auth_token
+    )
 
     download_function = partial(
         hf_hub_download,
@@ -78,13 +81,11 @@ def download_weights(model_name,
     print(f"Downloading {len(filenames)} files for model {model_name}")
     executor = ThreadPoolExecutor(max_workers=5)
     futures = [
-        executor.submit(download_function, filename=filename)
-        for filename in filenames
+        executor.submit(download_function, filename=filename) for filename in filenames
     ]
     files = [
         future.result()
-        for future in tqdm(concurrent.futures.as_completed(futures),
-                           total=len(futures))
+        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures))
     ]
 
     return files
@@ -98,8 +99,9 @@ def get_model_path(model_name: str, revision: Optional[str] = None):
         config_path = try_to_load_from_cache(
             model_name,
             config_file,
-            cache_dir=os.getenv("TRANSFORMERS_CACHE"
-                                ),  # will fall back to HUGGINGFACE_HUB_CACHE
+            cache_dir=os.getenv(
+                "TRANSFORMERS_CACHE"
+            ),  # will fall back to HUGGINGFACE_HUB_CACHE
             revision=revision,
         )
         if config_path is not None:
@@ -113,8 +115,7 @@ def get_model_path(model_name: str, revision: Optional[str] = None):
     if err is not None:
         raise err
 
-    raise ValueError(
-        f"Weights not found in local cache for model {model_name}")
+    raise ValueError(f"Weights not found in local cache for model {model_name}")
 
 
 def local_weight_files(model_path: str, extension=".safetensors"):
@@ -150,8 +151,7 @@ def _remove_duplicate_names(
         if len(shared) == 1:
             continue
 
-        complete_names = set(
-            [name for name in shared if _is_complete(state_dict[name])])
+        complete_names = {name for name in shared if _is_complete(state_dict[name])}
         if not complete_names:
             raise RuntimeError(f"Error while trying to find names to remove \
                     to save state dict, but found no suitable name to \
@@ -184,8 +184,7 @@ def _remove_duplicate_names(
 
 
 def convert_file(pt_file: Path, sf_file: Path, discard_names: List[str]):
-    """
-    Convert a pytorch file to a safetensors file
+    """Convert a pytorch file to a safetensors file
     This will remove duplicate tensors from the file.
 
     Unfortunately, this might not respect *transformers* convention.
@@ -217,39 +216,43 @@ def convert_file(pt_file: Path, sf_file: Path, discard_names: List[str]):
             raise RuntimeError(f"The output tensors do not match for key {k}")
 
 
-def convert_index_file(source_file: Path, dest_file: Path,
-                       pt_files: List[Path], sf_files: List[Path]):
+def convert_index_file(
+    source_file: Path, dest_file: Path, pt_files: List[Path], sf_files: List[Path]
+):
     weight_file_map = {s.name: d.name for s, d in zip(pt_files, sf_files)}
 
-    logger.info(
-        "Converting pytorch .bin.index.json files to .safetensors.index.json")
-    with open(source_file, "r") as f:
+    logger.info("Converting pytorch .bin.index.json files to .safetensors.index.json")
+    with open(source_file) as f:
         index = json.load(f)
 
     index["weight_map"] = {
-        k: weight_file_map[v]
-        for k, v in index["weight_map"].items()
+        k: weight_file_map[v] for k, v in index["weight_map"].items()
     }
 
     with open(dest_file, "w") as f:
         json.dump(index, f, indent=4)
 
 
-def convert_files(pt_files: List[Path],
-                  sf_files: List[Path],
-                  discard_names: List[str] = None):
+def convert_files(
+    pt_files: List[Path], sf_files: List[Path], discard_names: List[str] = None
+):
     assert len(pt_files) == len(sf_files)
 
     # Filter non-inference files
     pairs = [
-        p for p in zip(pt_files, sf_files) if not any(s in p[0].name for s in [
-            "arguments",
-            "args",
-            "training",
-            "optimizer",
-            "scheduler",
-            "index",
-        ])
+        p
+        for p in zip(pt_files, sf_files)
+        if not any(
+            s in p[0].name
+            for s in [
+                "arguments",
+                "args",
+                "training",
+                "optimizer",
+                "scheduler",
+                "index",
+            ]
+        )
     ]
 
     N = len(pairs)
@@ -266,5 +269,6 @@ def convert_files(pt_files: List[Path],
         start = datetime.datetime.now()
         convert_file(pt_file, sf_file, discard_names)
         elapsed = datetime.datetime.now() - start
-        logger.info('Converted: [%d] "%s" -- Took: %d', file_count,
-                    sf_file.name, elapsed)
+        logger.info(
+            'Converted: [%d] "%s" -- Took: %d', file_count, sf_file.name, elapsed
+        )
