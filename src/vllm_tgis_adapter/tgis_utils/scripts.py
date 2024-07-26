@@ -133,9 +133,10 @@ def cli() -> None:
     args = parser.parse_args()
     # One of the sub commands should be executed.
     if hasattr(args, "dispatch_function"):
+        print('here')
         args.dispatch_function(args)
     else:
-        print('here')
+        print('or here')
         parser.print_help()
 
 
