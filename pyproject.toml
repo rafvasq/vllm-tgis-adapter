@@ -46,9 +46,7 @@ Source = "https://github.com/opendatahub-io/vllm_tgis_adapter"
 
 [project.scripts]
 grpc-healthcheck = "vllm_tgis_adapter.healthcheck:cli"
-download-weights = "vllm_tgis_adapter.tgis_utils.scripts:cli"
-convert-to-safetensors = "vllm_tgis_adapter.tgis_utils.scripts:cli"
-convert-to-fast-tokenizer = "vllm_tgis_adapter.tgis_utils.scripts:cli"
+vllm = "vllm_tgis_adapter.tgis_utils.scripts:cli"
 
 [project.optional-dependencies]
 tests = [
