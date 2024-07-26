@@ -9,6 +9,7 @@ from typing import Optional
 from vllm.model_executor.model_loader.weight_utils import convert_bin_to_safetensor_file
 from vllm.scripts import registrer_signal_handlers
 from vllm.utils import FlexibleArgumentParser
+import hub
 
 def tgis_cli(args: argparse.Namespace) -> None:
     registrer_signal_handlers()
@@ -30,7 +31,6 @@ def download_weights(
     extension: str = ".safetensors",
     auto_convert: bool = True,
 ) -> None:
-    from tgis_utils import hub
 
     print(extension)
     meta_exts = [".json", ".py", ".model", ".md"]
@@ -71,7 +71,6 @@ def convert_to_fast_tokenizer(
     revision: Optional[str] = None,
     output_path: Optional[str] = None,
 ):
-    from tgis_utils import hub
 
     # Check for existing "tokenizer.json"
     model_path = hub.get_model_path(model_name, revision)
@@ -95,7 +94,7 @@ def convert_to_fast_tokenizer(
 
     print(f"Saved tokenizer to {output_path}")
 
-def cli() -> None:
+def cli():
     parser = FlexibleArgumentParser(description="vLLM CLI")
     subparsers = parser.add_subparsers(required=True)
 
@@ -133,10 +132,8 @@ def cli() -> None:
     args = parser.parse_args()
     # One of the sub commands should be executed.
     if hasattr(args, "dispatch_function"):
-        print('here')
         args.dispatch_function(args)
     else:
-        print('or here')
         parser.print_help()
 
 
