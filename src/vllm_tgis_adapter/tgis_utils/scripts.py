@@ -9,7 +9,7 @@ from typing import Optional
 from vllm.model_executor.model_loader.weight_utils import convert_bin_to_safetensor_file
 from vllm.scripts import registrer_signal_handlers
 from vllm.utils import FlexibleArgumentParser
-import hub
+from vllm_tgis_adapter.tgis_utils import hub
 
 def tgis_cli(args: argparse.Namespace) -> None:
     registrer_signal_handlers()
