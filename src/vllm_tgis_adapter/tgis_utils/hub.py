@@ -15,7 +15,6 @@ from huggingface_hub.utils import LocalEntryNotFoundError
 from safetensors.torch import _remove_duplicate_names, load_file, save_file
 from tqdm import tqdm
 
-TRUST_REMOTE_CODE = os.getenv("TRUST_REMOTE_CODE") == "true"
 logger = logging.getLogger(__name__)
 
 
