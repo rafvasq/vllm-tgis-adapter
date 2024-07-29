@@ -1,13 +1,20 @@
 # The CLI entrypoint to vLLM.
-import argparse
-import os
-from typing import Optional
+from __future__ import annotations
 
+import logging
+from typing import TYPE_CHECKING
+
+import Path
 from vllm.model_executor.model_loader.weight_utils import convert_bin_to_safetensor_file
 from vllm.scripts import registrer_signal_handlers
 from vllm.utils import FlexibleArgumentParser
 
 from vllm_tgis_adapter.tgis_utils import hub
+
+logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    import argparse
 
 
 def tgis_cli(args: argparse.Namespace) -> None:
@@ -29,12 +36,15 @@ def tgis_cli(args: argparse.Namespace) -> None:
 
 def download_weights(
     model_name: str,
-    revision: Optional[str] = None,
-    token: Optional[str] = None,
+    revision: str | None = None,
+    token: str | None = None,
     extension: str = ".safetensors",
-    auto_convert: bool = True,
+    auto_convert: bool | None = None,
 ) -> None:
-    print(extension)
+    if auto_convert is None:
+        auto_convert = True
+
+    logger.info(extension)
     meta_exts = [".json", ".py", ".model", ".md"]
 
     extensions = extension.split(",")
@@ -51,7 +61,7 @@ def download_weights(
             hub.get_model_path(model_name, revision), ".safetensors"
         ):
             if ".bin" not in extensions:
-                print(
+                logger.info(
                     ".safetensors weights not found, \
                     downloading pytorch weights to convert..."
                 )
@@ -59,13 +69,13 @@ def download_weights(
                     model_name, ".bin", revision=revision, auth_token=token
                 )
 
-            print(
+            logger.info(
                 ".safetensors weights not found, \
                     converting from pytorch weights..."
             )
             convert_bin_to_safetensor_file(model_name, revision)
         elif not any(f.endswith(".safetensors") for f in files):
-            print(
+            logger.info(
                 ".safetensors weights not found on hub, \
                     but were found locally. Remove them first to re-convert"
             )
@@ -75,19 +85,19 @@ def download_weights(
 
 def convert_to_fast_tokenizer(
     model_name: str,
-    revision: Optional[str] = None,
-    output_path: Optional[str] = None,
-):
+    revision: str | None = None,
+    output_path: str | None = None,
+) -> None:
     # Check for existing "tokenizer.json"
     model_path = hub.get_model_path(model_name, revision)
 
-    if os.path.exists(os.path.join(model_path, "tokenizer.json")):
-        print(f"Model {model_name} already has a fast tokenizer")
+    if Path.exists(Path(model_path) / "tokenizer.json"):
+        logger.info("Model %s already has a fast tokenizer", model_name)
         return
 
     if output_path is not None:
-        if not os.path.isdir(output_path):
-            print(f"Output path {output_path} must exist and be a directory")
+        if not Path.isdir(output_path):
+            logger.info("Output path %s must exist and be a directory", output_path)
             return
     else:
         output_path = model_path
@@ -99,10 +109,10 @@ def convert_to_fast_tokenizer(
     )
     tokenizer.save_pretrained(output_path)
 
-    print(f"Saved tokenizer to {output_path}")
+    logger.info("Saved tokenizer to %s", output_path)
 
 
-def cli():
+def cli() -> None:
     parser = FlexibleArgumentParser(description="vLLM CLI")
     subparsers = parser.add_subparsers(required=True)
 

@@ -22,7 +22,7 @@ def test_convert_files():
 
     found_st_files = weight_files(model_id)
 
-    assert all([str(p) in found_st_files for p in local_st_files])
+    assert all(str(p) in found_st_files for p in local_st_files)
 
 
 def test_weight_hub_files():
