@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-import Path
 from vllm.model_executor.model_loader.weight_utils import convert_bin_to_safetensor_file
 from vllm.scripts import registrer_signal_handlers
 from vllm.utils import FlexibleArgumentParser
