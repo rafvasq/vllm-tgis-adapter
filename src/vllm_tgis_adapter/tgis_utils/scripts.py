@@ -129,7 +129,7 @@ def convert_to_safetensors(
         discard_names = getattr(class_, "_tied_weights_keys", [])
         discard_names.extend(getattr(class_, "_keys_to_ignore_on_load_missing", []))
 
-    except RuntimeError:
+    except TypeError:
         discard_names = []
 
     if local_pt_index_file:
