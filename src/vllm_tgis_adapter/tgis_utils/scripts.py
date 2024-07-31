@@ -1,7 +1,7 @@
 # The CLI entrypoint to vLLM.
 from __future__ import annotations
 
-import logging
+from .logging import init_logger
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -10,7 +10,7 @@ from vllm.utils import FlexibleArgumentParser
 
 from vllm_tgis_adapter.tgis_utils import hub
 
-logger = logging.getLogger(__name__)
+logger = init_logger(__name__)
 
 if TYPE_CHECKING:
     import argparse

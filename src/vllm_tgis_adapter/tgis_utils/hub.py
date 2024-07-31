@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import concurrent
 import datetime
-import glob
 import json
-import logging
+from .logging import init_logger
 import os
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
@@ -16,7 +15,7 @@ from huggingface_hub.utils import LocalEntryNotFoundError
 from safetensors.torch import _remove_duplicate_names, load_file, save_file
 from tqdm import tqdm
 
-logger = logging.getLogger(__name__)
+logger = init_logger(__name__)
 
 
 def weight_hub_files(
