@@ -130,7 +130,7 @@ def local_weight_files(model_path: str, extension: str = ".safetensors") -> list
     ext = "" if extension is None else extension
     print(list(Path(f"{model_path}").glob(f"*{ext}"))) # outputs generator
     print(glob.glob(f"{model_path}/*{ext}"))
-    return list(Path(f"{model_path}").glob(f"/*{ext}"))
+    return list(Path(f"{model_path}").glob(f"*{ext}"))
 
 
 def local_index_files(model_path: str, extension: str = ".safetensors") -> list:
