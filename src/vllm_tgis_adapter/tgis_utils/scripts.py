@@ -119,7 +119,7 @@ def cli() -> None:
     download_weights_parser = subparsers.add_parser(
         "download-weights",
         help=("Download the weights of a given model"),
-        usage="vllm download-weights <model_name> [options]",
+        usage="adapter download-weights <model_name> [options]",
     )
     download_weights_parser.add_argument("model_name")
     download_weights_parser.add_argument("--revision")
@@ -133,7 +133,7 @@ def cli() -> None:
     convert_to_safetensors_parser = subparsers.add_parser(
         "convert-to-safetensors",
         help=("Convert model weights to safetensors"),
-        usage="vllm convert-to-safetensors <model_name> [options]",
+        usage="adapter convert-to-safetensors <model_name> [options]",
     )
     convert_to_safetensors_parser.add_argument("model_name")
     convert_to_safetensors_parser.add_argument("--revision")
@@ -144,7 +144,7 @@ def cli() -> None:
     convert_to_fast_tokenizer_parser = subparsers.add_parser(
         "convert-to-fast-tokenizer",
         help=("Convert to fast tokenizer"),
-        usage="vllm convert-to-fast-tokenizer <model_name> [options]",
+        usage="adapter convert-to-fast-tokenizer <model_name> [options]",
     )
     convert_to_fast_tokenizer_parser.add_argument("model_name")
     convert_to_fast_tokenizer_parser.add_argument("--revision")
