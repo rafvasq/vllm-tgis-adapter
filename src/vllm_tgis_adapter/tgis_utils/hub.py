@@ -128,7 +128,7 @@ def get_model_path(model_name: str, revision: str | None = None) -> str:
 def local_weight_files(model_path: str, extension: str = ".safetensors") -> list:
     """Get the local safetensors filenames."""
     ext = "" if extension is None else extension
-    print(list(Path(f"{model_path}").glob(f"/*{ext}"))) # outputs generator
+    print(list(Path(f"{model_path}").glob(f"*{ext}"))) # outputs generator
     print(glob.glob(f"{model_path}/*{ext}"))
     return list(Path(f"{model_path}").glob(f"/*{ext}"))
 
@@ -136,9 +136,9 @@ def local_weight_files(model_path: str, extension: str = ".safetensors") -> list
 def local_index_files(model_path: str, extension: str = ".safetensors") -> list:
     """Get the local .index.json filename."""
     ext = "" if extension is None else extension
-    print(Path(f"{model_path}").glob(f"/*{ext}.index.json"))
+    print(Path(f"{model_path}").glob(f"*{ext}.index.json"))
     print(glob.glob(f"{model_path}/*{ext}.index.json"))
-    return list(Path(f"{model_path}").glob(f"/*{ext}.index.json"))
+    return list(Path(f"{model_path}").glob(f"*{ext}.index.json"))
 
 
 def convert_file(pt_file: Path, sf_file: Path, discard_names: list[str]) -> None:
