@@ -3,7 +3,6 @@ from __future__ import annotations
 import concurrent
 import datetime
 import json
-from .logging import init_logger
 import os
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
@@ -14,6 +13,7 @@ from huggingface_hub import HfApi, hf_hub_download, try_to_load_from_cache
 from huggingface_hub.utils import LocalEntryNotFoundError
 from safetensors.torch import _remove_duplicate_names, load_file, save_file
 from tqdm import tqdm
+from vllm_tgis_adapter.logging import init_logger
 
 logger = init_logger(__name__)
 

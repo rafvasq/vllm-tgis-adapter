@@ -1,7 +1,8 @@
 # The CLI entrypoint to vLLM.
 from __future__ import annotations
 
-from .logging import init_logger
+
+from vllm_tgis_adapter.logging import init_logger
 from pathlib import Path
 from typing import TYPE_CHECKING
 
