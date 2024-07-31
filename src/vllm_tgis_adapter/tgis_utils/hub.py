@@ -158,7 +158,7 @@ def convert_file(pt_file: Path, sf_file: Path, discard_names: list[str]) -> None
     # Force tensors to be contiguous
     loaded = {k: v.contiguous() for k, v in loaded.items()}
 
-    dirname = Path.parent(sf_file)
+    dirname = Path(sf_file).parent
     Path(dirname).mkdir(parents=True)
     save_file(loaded, sf_file, metadata=metadata)
     reloaded = load_file(sf_file)
