@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import concurrent
 import datetime
+import glob
 import json
 import logging
 import os
@@ -115,7 +116,7 @@ def get_model_path(model_name: str, revision: str | None = None) -> str:
     except ValueError as e:
         err = e
 
-    if Path.isfile(f"{model_name}/{config_file}"):
+    if Path(f"{model_name}/{config_file}").is_file():
         return model_name  # Just treat the model name as an explicit model path
 
     if err is not None:
@@ -127,12 +128,16 @@ def get_model_path(model_name: str, revision: str | None = None) -> str:
 def local_weight_files(model_path: str, extension: str = ".safetensors") -> list:
     """Get the local safetensors filenames."""
     ext = "" if extension is None else extension
+    print(Path(f"{model_path}").glob(f"/*{ext}"))
+    print(glob.glob(f"{model_path}/*{ext}"))
     return Path(f"{model_path}").glob(f"/*{ext}")
 
 
 def local_index_files(model_path: str, extension: str = ".safetensors") -> list:
     """Get the local .index.json filename."""
     ext = "" if extension is None else extension
+    print(Path(f"{model_path}").glob(f"/*{ext}.index.json"))
+    print(glob.glob(f"{model_path}/*{ext}.index.json"))
     return Path(f"{model_path}").glob(f"/*{ext}.index.json")
 
 
