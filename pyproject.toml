@@ -84,7 +84,7 @@ vllm_tgis_adapter = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-ra"
+addopts = "-ra -k \"not large\""
 markers = [
   "large"
 ]

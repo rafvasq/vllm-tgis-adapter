@@ -26,6 +26,7 @@ def test_convert_files():
     assert all(str(p) in found_st_files for p in local_st_files)
 
 
+@pytest.mark.large()
 def test_weight_hub_files():
     filenames = weight_hub_files("bigscience/bloom-560m")
     assert filenames == ["model.safetensors"]
@@ -37,17 +38,20 @@ def test_weight_hub_files_llm():
     assert filenames == [f"model_{i:05d}-of-00072.safetensors" for i in range(1, 73)]
 
 
+@pytest.mark.large()
 def test_weight_hub_files_empty():
     filenames = weight_hub_files("bigscience/bloom", ".errors")
     assert filenames == []
 
 
+@pytest.mark.large()
 def test_download_weights():
     files = download_weights("bigscience/bloom-560m")
     local_files = weight_files("bigscience/bloom-560m")
     assert files == local_files
 
 
+@pytest.mark.large()
 def test_weight_files_error():
     with pytest.raises(LocalEntryNotFoundError):
         weight_files("bert-base-uncased")
