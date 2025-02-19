@@ -162,7 +162,7 @@ def add_tgis_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument(
         "--vllm-log-filter-patterns",
         type=str,
-        default='["GuidedDecodingParams\\\\([^)]*\\\\)", "vLLM"]',
+        default='["vLLM"]',
     )
 
     # TODO check/add other args here
