@@ -37,5 +37,6 @@ if vllm_log_filter_patterns:
         logging.warning("Invalid JSON format in VLLM_LOG_FILTER_PATTERNS")
 
 config["filters"]["vllm_redact"]["patterns"] = patterns
+print(patterns)
 
 logging.config.dictConfig(config)
