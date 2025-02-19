@@ -1,5 +1,4 @@
 import logging
-import os
 
 from vllm.logger import (
     DEFAULT_LOGGING_CONFIG,
@@ -11,16 +10,9 @@ DEFAULT_LOGGER_NAME = __name__.split(".")[0]
 config = {**DEFAULT_LOGGING_CONFIG}
 
 config["formatters"][DEFAULT_LOGGER_NAME] = DEFAULT_LOGGING_CONFIG["formatters"]["vllm"]
-config["filters"][DEFAULT_LOGGER_NAME] = DEFAULT_LOGGING_CONFIG["filters"][
-    "vllm_redact"
-]
 
 handler_config = DEFAULT_LOGGING_CONFIG["handlers"]["vllm"]
 handler_config["formatter"] = DEFAULT_LOGGER_NAME
-handler_config["filters"] = [DEFAULT_LOGGER_NAME]
-DEFAULT_LOGGING_CONFIG["filters"]["vllm_redact"]["patterns"] = os.getenv(
-    "VLLM_LOG_FILTER_PATTERNS", '["vLLM"]'
-)
 config["handlers"][DEFAULT_LOGGER_NAME] = handler_config
 
 logger_config = DEFAULT_LOGGING_CONFIG["loggers"]["vllm"]

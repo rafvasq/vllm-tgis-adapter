@@ -162,7 +162,6 @@ def add_tgis_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument(
         "--vllm-log-filter-patterns",
         type=str,
-        default='["version"]',
         help="Regex patterns to redact in logs. Ensure it's"
         "a valid JSON array of strings, e.g., "
         '\'["pattern1", "pattern2"].',
