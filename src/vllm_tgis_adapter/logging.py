@@ -10,9 +10,7 @@ DEFAULT_LOGGER_NAME = __name__.split(".")[0]
 config = {**DEFAULT_LOGGING_CONFIG}
 
 config["formatters"][DEFAULT_LOGGER_NAME] = DEFAULT_LOGGING_CONFIG["formatters"]["vllm"]
-config["filters"][DEFAULT_LOGGER_NAME] = DEFAULT_LOGGING_CONFIG["filters"][
-    "vllm_redact"
-]
+config["filters"][DEFAULT_LOGGER_NAME] = DEFAULT_LOGGING_CONFIG["filters"]["vllm_"]
 
 handler_config = DEFAULT_LOGGING_CONFIG["handlers"]["vllm"]
 handler_config["formatter"] = DEFAULT_LOGGER_NAME
