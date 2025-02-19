@@ -242,9 +242,9 @@ def postprocess_tgis_args(args: argparse.Namespace) -> argparse.Namespace:  # no
         )
 
     if args.vllm_log_filter_patterns is not None:
-        logger.info("Here are your filter patterns, the arg and the env var")
+        os.environ["VLLM_LOG_FILTER_PATTERNS"] = args.vllm_log_filter_patterns
+        logger.info("Set VLLM_LOG_FILTER_PATTERNS to:")
         logger.info(args.vllm_log_filter_patterns)
-        logger.info(os.getenv("VLLM_LOG_FILTER_PATTERNS"))
 
     if args.tls_cert_path:
         args.ssl_certfile = args.tls_cert_path
