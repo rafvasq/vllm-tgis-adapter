@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 
 from vllm.logger import (
     DEFAULT_LOGGING_CONFIG,
@@ -6,6 +8,19 @@ from vllm.logger import (
 )
 
 DEFAULT_LOGGER_NAME = __name__.split(".")[0]
+
+# Extract log filter patterns from the environment variable
+patterns = []
+vllm_log_filter_patterns = os.getenv("VLLM_LOG_FILTER_PATTERNS")
+if vllm_log_filter_patterns:
+    try:
+        # Parse the patterns from JSON
+        patterns = json.loads(vllm_log_filter_patterns)
+    except json.JSONDecodeError:
+        logging.warning("Invalid JSON format in VLLM_LOG_FILTER_PATTERNS")
+
+# Apply patterns to the DEFAULT_LOGGING_CONFIG
+DEFAULT_LOGGING_CONFIG["filters"]["vllm_redact"]["patterns"] = patterns
 
 config = {**DEFAULT_LOGGING_CONFIG}
 
