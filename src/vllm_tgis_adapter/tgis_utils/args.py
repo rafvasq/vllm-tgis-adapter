@@ -242,6 +242,7 @@ def postprocess_tgis_args(args: argparse.Namespace) -> argparse.Namespace:  # no
         )
 
     if args.vllm_log_filter_patterns is not None:
+        logger.info("Here are your filter patterns, the arg and the env var")
         logger.info(args.vllm_log_filter_patterns)
         logger.info(os.getenv("VLLM_LOG_FILTER_PATTERNS"))
 
