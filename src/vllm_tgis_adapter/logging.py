@@ -28,7 +28,7 @@ config["loggers"][DEFAULT_LOGGER_NAME] = logger_config
 # Extract log filter patterns from the environment variable
 print("HERE WE GO set up logging")
 patterns = []
-vllm_log_filter_patterns = os.getenv("VLLM_LOG_FILTER_PATTERNS", '["vLLM"]')
+vllm_log_filter_patterns = os.getenv("VLLM_LOG_FILTER_PATTERNS", '["GuidedDecodingParams\\\\([^)]*\\\\)"]')
 if vllm_log_filter_patterns:
     try:
         # Parse the patterns from JSON
