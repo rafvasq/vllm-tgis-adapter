@@ -241,6 +241,10 @@ def postprocess_tgis_args(args: argparse.Namespace) -> argparse.Namespace:  # no
             "max_concurrent_requests is not supported by tgis-vllm and will be ignored."
         )
 
+    if args.vllm_log_filter_patterns is not None:
+        logger.info(args.vllm_log_filter_patterns)
+        logger.info(os.getenv("VLLM_LOG_FILTER_PATTERNS"))
+
     if args.tls_cert_path:
         args.ssl_certfile = args.tls_cert_path
     if args.tls_key_path:
